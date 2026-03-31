@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function TodoList() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const saved = localStorage.getItem('todos');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
   function handleInputChange(event) {
     setInputValue(event.target.value);
-    console.log(setInputValue);
   }
 
   function handleSubmit(event) {
@@ -29,26 +35,25 @@ function TodoList() {
   }
 
   return (
-    <div>
+    <div className="todo-container">
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder='Add Todo' value={inputValue} onChange={handleInputChange} />
-        <button type="submit">Add Todo</button>
+        <input 
+          type="text" 
+          placeholder='Add a new task...' 
+          value={inputValue} 
+          onChange={handleInputChange} 
+        />
+        <button type="submit">Add</button>
       </form>
       <ul>
         {todos.map((todo, index) => (
-          <li key={index}>
+          <li key={index} className={todo.completed ? 'completed' : ''}>
             <input 
               type="checkbox" 
               checked={todo.completed} 
               onChange={() => handleToggle(index)}
             />
-
-            <span style={{margin: '0 5px'}}/>
-
-            <input type="text" style={{ textDecoration: todo.completed ? 'line-through' : 'none'}} disabled value={todo.text} />
-
-            <span style={{margin: '0 5px'}}/>
-
+            <span>{todo.text}</span>
             <button onClick={() => handleDelete(index)}>Delete</button>
           </li>
         ))}
